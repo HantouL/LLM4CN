@@ -1,12 +1,18 @@
 import random
 from utils import LLM_generate_algorithm
 
+# 手动设计初始函数
 class InitializationModule:
     def __init__(self, task, prompt_init, prompt_code_request, extra_prompt, handmade=False):
         self.all_prompt = task + prompt_init + prompt_code_request + extra_prompt
         self.handmade = handmade
 
     def generate_initial_algorithms(self, count):
+        '''
+            根据 self.handmade 的值，选择生成方式：
+            若 False，调用 LLM_generate_algorithm 生成 count 个算法。
+            若 True，调用 handmade_algorithms 返回手动设计的算法。
+        '''
         if not self.handmade:
             algorithms = [LLM_generate_algorithm(self.all_prompt) for i in range(count)]
             cost = sum(cost for _, cost in algorithms)
@@ -16,6 +22,20 @@ class InitializationModule:
         return algorithms[:count], cost
 
     def handmade_algorithms(self):
+        '''
+            这些算法分别为
+                度中心性：基于节点的度（邻居数）。
+                介数中心性：使用 NetworkX 计算节点在最短路径中的重要性。
+                特征向量中心性：基于邻接矩阵的最大特征向量。
+                聚类系数：衡量节点邻居之间的连接密度。
+                集体影响力：结合节点度和邻居度计算影响力。
+                PageRank：模拟网页排名的迭代算法。
+                渗透中心性：衡量节点在网络渗透过程中的重要性。
+                调和中心性：基于到所有其他节点的平均距离。
+                Fiedler向量覆盖：使用拉普拉斯矩阵的Fiedler向量和最小加权顶点覆盖。
+                加权综合评分：融合度、介数和PageRank的加权平均。
+        '''
+
         algorithms = [
         """import numpy as np
 def score_nodes(adjacency_matrix):

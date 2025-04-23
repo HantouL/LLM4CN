@@ -1,5 +1,6 @@
 from utils import LLM_generate_algorithm
 
+# LLMs的交叉混合
 class CrossoverModule:
     def __init__(self, task, prompt_crossover, prompt_code_request, extra_prompt):
         self.task = task
@@ -7,6 +8,7 @@ class CrossoverModule:
         self.prompt_code_request = prompt_code_request
         self.extra_prompt = extra_prompt
 
+    # 对父代算法两两交叉，生成子代算法，并返回子代算法列表和总成本
     def crossover_algorithms(self, parent_algorithms):
         crossed_algorithms = []
         all_cost = 0
