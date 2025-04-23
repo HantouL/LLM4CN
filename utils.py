@@ -1,11 +1,21 @@
 import numpy as np
 import networkx as nx
-import openai
+from openai import OpenAI
 import re
 
-KEY = "Your OpenAI API Key"
+# KEY = "Your OpenAI API Key"
+
+# Kimi API 配置
+KIMI_API_KEY = ""  # 替换为你的 Kimi API 密钥
+KIMI_BASE_URL = "https://api.moonshot.cn/v1"
 Input_35 = 0.001
 Output_35 = 0.002
+
+# 初始化 Kimi 客户端
+client = OpenAI(
+    api_key=KIMI_API_KEY,
+    base_url=KIMI_BASE_URL
+)
 
 
 # 从代码文本中移除函数定义行后的换行符和注释
@@ -58,27 +68,46 @@ def calculate_anc(adjacency_matrix, nodes_to_remove):
     return anc
 
 
-# 调用GPT-3.5生成算法并验证。
+# 调用kimi生成算法并验证。
 def LLM_generate_algorithm(prompt, stochasticity=1):
-    openai.api_key = KEY
     while True:
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=stochasticity
-        )
-        algorithm = completion.choices[0].message["content"]
-        Input_tokens = completion.usage.prompt_tokens
-        Output_tokens = completion.usage.completion_tokens
-        all_cost = Input_tokens / 1000 * Input_35 + Output_tokens / 1000 * Output_35
+        try:
+            completion = client.chat.completions.create(
+                model="moonshot-v1-128k",  # 使用 Kimi 的长上下文模型
+                messages=[{"role": "user", "content": prompt}],
+                temperature=stochasticity,
+                top_p=0.9
+            )
+            algorithm = completion.choices[0].message.content
 
-        if check_code(algorithm):
-            print('Generated Algorithm Succeeded!')
-            break
-        else:
-            print('Generated Algorithm Failed!')
+            # 提取代码部分
+            code_start = algorithm.find("```python") + 9
+            code_end = algorithm.find("```", code_start)
+            if code_start > 8 and code_end > code_start:
+                algorithm = algorithm[code_start:code_end].strip()
+            else:
+                algorithm = algorithm.strip()  # 回退到原始输出
+
+            # 计算成本
+            input_tokens = completion.usage.prompt_tokens
+            output_tokens = completion.usage.completion_tokens
+            # 示例定价
+            input_price_per_1k = 0.001  # 假设 $0.001/1k tokens
+            output_price_per_1k = 0.002  # 假设 $0.002/1k tokens
+            all_cost = (input_tokens / 1000 * input_price_per_1k) + (output_tokens / 1000 * output_price_per_1k)
+
+            if check_code(algorithm):
+                print("Generated Algorithm Succeeded!")
+                break
+            else:
+                print("Generated Algorithm Failed!")
+        except Exception as e:
+            print(f"API call failed: {e}")
+            algorithm = ""
+            all_cost = 0
+            continue
+
     return algorithm, all_cost
-
 
 # 计算最大连通分量（GCC）的大小
 def calculate_size_of_gcc(Graph):
