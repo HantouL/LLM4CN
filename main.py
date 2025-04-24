@@ -112,7 +112,7 @@ if __name__ == '__main__':
         print('初始化算法池！')
         for idx, algorithm in enumerate(tqdm(initial_algorithms, desc='评分初始算法')):
             print(f"评分第 {idx + 1} 个初始算法...")
-            score = scoring_module.evaluate_algorithm(algorithm)  # 修正拼写：evlaluate_algorithm -> evaluate_algorithm
+            score = scoring_module.evaluate_algorithm(algorithm)
             print(f"第 {idx + 1} 个初始算法得分：{score}")
             population_label = f"Population_{len(algorithm_pool.pool)}"
             algorithm_pool.add_algorithm(algorithm, score, population_label, 0)
@@ -163,7 +163,7 @@ if __name__ == '__main__':
                 Total_Cost += cost
                 print(f"变异完成，成本：{cost}")
             print("评分交叉算法...")
-            score = scoring_module.evaluate_algorithm(algorithm)  # 修正拼写
+            score = scoring_module.evaluate_algorithm(algorithm)
             print(f"第 {idx + 1} 个交叉算法得分：{score}")
             population_label, similarity = algorithm_pool.algorithm_classification(algorithm)
             print(f"交叉算法分类，群体标签：{population_label}，相似度：{similarity}")
@@ -191,7 +191,8 @@ if __name__ == '__main__':
                     Total_Cost += cost
                     print(f"群体内部变异完成，成本：{cost}")
                 print("评分群体内部算法...")
-                score = scoring_module.evaluate_algorithm(algorithm)  # 修正拼写
+                score = scoring_module.evaluate_algorithm(algorithm)
+                print(f"群体内部算法得分：{score}")
                 print(f"群体内部算法得分：{score}")
                 algorithm_pool.add_algorithm(algorithm, score, population_label, 1)
                 print(f"已添加群体内部算法到 {population_label}")
