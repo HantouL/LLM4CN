@@ -127,8 +127,8 @@ if __name__ == '__main__':
     average_scores = []
     best_scores = []
     current_time = datetime.now()
-    formatted_time = current_time.strftime("%m-%d %H:%M")
-    folder_path = f'./results/algorithms_{args.dataset}_{args.ratio}_{args.train_type}_{formatted_time}'
+    formatted_time = current_time.strftime("%m-%d_%H-%M")  # 修改格式
+    folder_path = f"./results/algorithms_{args.dataset}_{args.ratio}_{args.train_type}_{formatted_time}"
     if not os.path.exists(folder_path):
         print(f"创建结果保存目录：{folder_path}")
         os.makedirs(folder_path)
